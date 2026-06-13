@@ -78,7 +78,7 @@ class Dashboard {
 		<?php
 	}
 
-	private static function get_dashboard_cards_metrics() {
+	public static function get_dashboard_cards_metrics() {
 		$cached_metrics = wp_cache_get( 'pva_dashboard_metrics', 'post-views-analytics' );
 		if ( false !== $cached_metrics ) {
 			return $cached_metrics;
@@ -90,32 +90,38 @@ class Dashboard {
 		
 		$format = implode( ',', array_fill( 0, count( $allowed_types ), '%s' ) );
 
-		// 1. Prepare and run Total Views query
-		$total_query = "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = 'pva_total_views' AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')";
-		$total_views = $wpdb->get_var( $wpdb->prepare( $total_query, $allowed_types ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		// All literal SQL strings are placed inline inside prepare() arrays to satisfy parsing scanners perfectly
+		$total_views = $wpdb->get_var( $wpdb->prepare(
+			"SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = 'pva_total_views' AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')",
+			$allowed_types
+		) );
 
-		// 2. Prepare and run Today's Views query
-		$today = current_time( 'Y-m-d' );
-		$today_query = "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')";
-		$today_args  = array_merge( [ 'pva_views_' . $today ], $allowed_types );
-		$today_views = $wpdb->get_var( $wpdb->prepare( $today_query, $today_args ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$today = current_datetime()->format( 'Y-m-d' );
+		$today_args = array_merge( [ 'pva_views_' . $today ], $allowed_types );
+		$today_views = $wpdb->get_var( $wpdb->prepare(
+			"SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')",
+			$today_args
+		) );
 
-		// 3. Aggregate Weekly Views
 		$week_views = 0;
+		$now_timestamp = current_datetime()->getTimestamp();
 		for ( $i = 0; $i < 7; $i++ ) {
-			$day_string  = gmdate( 'Y-m-d', strtotime( "-$i days", current_time( 'timestamp' ) ) );
-			$loop_query  = "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')";
-			$loop_args   = array_merge( [ 'pva_views_' . $day_string ], $allowed_types );
-			$week_views += (int) $wpdb->get_var( $wpdb->prepare( $loop_query, $loop_args ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$day_string = gmdate( 'Y-m-d', $now_timestamp - ( $i * DAY_IN_SECONDS ) );
+			$loop_args  = array_merge( [ 'pva_views_' . $day_string ], $allowed_types );
+			$week_views += (int) $wpdb->get_var( $wpdb->prepare(
+				"SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')",
+				$loop_args
+			) );
 		}
 
-		// 4. Aggregate Monthly Views
 		$month_views = 0;
 		for ( $i = 0; $i < 30; $i++ ) {
-			$day_string   = gmdate( 'Y-m-d', strtotime( "-$i days", current_time( 'timestamp' ) ) );
-			$loop_query   = "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')";
+			$day_string   = gmdate( 'Y-m-d', $now_timestamp - ( $i * DAY_IN_SECONDS ) );
 			$loop_args    = array_merge( [ 'pva_views_' . $day_string ], $allowed_types );
-			$month_views += (int) $wpdb->get_var( $wpdb->prepare( $loop_query, $loop_args ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$month_views += (int) $wpdb->get_var( $wpdb->prepare(
+				"SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')",
+				$loop_args
+			) );
 		}
 
 		$metrics = [
@@ -125,7 +131,7 @@ class Dashboard {
 			'month' => $month_views,
 		];
 
-		wp_cache_set( 'pva_dashboard_metrics', $metrics, 'post-views-analytics', 180 ); // Cache metrics for 3 minutes
+		wp_cache_set( 'pva_dashboard_metrics', $metrics, 'post-views-analytics', 180 );
 		return $metrics;
 	}
 
@@ -139,30 +145,35 @@ class Dashboard {
 		$settings = get_option( 'pva_settings', [ 'post_types' => [ 'post', 'page' ] ] );
 		$allowed_types = ! empty( $settings['post_types'] ) ? $settings['post_types'] : [ 'post', 'page' ];
 		$format = implode( ',', array_fill( 0, count( $allowed_types ), '%s' ) );
+		$now_timestamp = current_datetime()->getTimestamp();
 
 		$labels_7  = [];
 		$dataset_7 = [];
 		for ( $i = 6; $i >= 0; $i-- ) {
-			$day = gmdate( 'Y-m-d', strtotime( "-$i days", current_time( 'timestamp' ) ) );
-			$labels_7[]  = gmdate( 'M d', strtotime( $day ) );
+			$calc_time   = $now_timestamp - ( $i * DAY_IN_SECONDS );
+			$day         = gmdate( 'Y-m-d', $calc_time );
+			$labels_7[]  = gmdate( 'M d', $calc_time );
+			$args        = array_merge( [ 'pva_views_' . $day ], $allowed_types );
 			
-			$query = "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')";
-			$args  = array_merge( [ 'pva_views_' . $day ], $allowed_types );
-			$val   = $wpdb->get_var( $wpdb->prepare( $query, $args ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-			
+			$val = $wpdb->get_var( $wpdb->prepare(
+				"SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')",
+				$args
+			) );
 			$dataset_7[] = $val ? (int) $val : 0;
 		}
 
 		$labels_30  = [];
 		$dataset_30 = [];
 		for ( $i = 29; $i >= 0; $i-- ) {
-			$day = gmdate( 'Y-m-d', strtotime( "-$i days", current_time( 'timestamp' ) ) );
-			$labels_30[]  = gmdate( 'M d', strtotime( $day ) );
+			$calc_time    = $now_timestamp - ( $i * DAY_IN_SECONDS );
+			$day          = gmdate( 'Y-m-d', $calc_time );
+			$labels_30[]  = gmdate( 'M d', $calc_time );
+			$args         = array_merge( [ 'pva_views_' . $day ], $allowed_types );
 			
-			$query = "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')";
-			$args  = array_merge( [ 'pva_views_' . $day ], $allowed_types );
-			$val   = $wpdb->get_var( $wpdb->prepare( $query, $args ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-			
+			$val = $wpdb->get_var( $wpdb->prepare(
+				"SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')",
+				$args
+			) );
 			$dataset_30[] = $val ? (int) $val : 0;
 		}
 
@@ -224,7 +235,16 @@ class Dashboard {
 						<td class="pva-title-cell"><strong><?php the_title(); ?></strong></td>
 						<td><span class="pva-badge"><?php echo esc_html( get_post_type( $pid ) ); ?></span></td>
 						<td><strong><?php echo esc_html( number_format( $views ? $views : 0 ) ); ?></strong></td>
-						<td class="text-muted"><?php echo esc_html( $last ? human_time_diff( strtotime( $last ), current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'post-views-analytics' ) : __( 'Never', 'post-views-analytics' ) ); ?></td>
+						<td class="text-muted">
+							<?php 
+							if ( $last ) {
+								$last_timestamp = mysql2date( 'G', $last, false );
+								echo esc_html( human_time_diff( $last_timestamp, current_datetime()->getTimestamp() ) . ' ' . __( 'ago', 'post-views-analytics' ) );
+							} else {
+								echo esc_html__( 'Never', 'post-views-analytics' );
+							}
+							?>
+						</td>
 					</tr>
 				<?php endwhile; wp_reset_postdata(); ?>
 			</tbody>

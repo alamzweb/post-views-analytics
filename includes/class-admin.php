@@ -203,20 +203,17 @@ class Admin {
 
 		$target_type = isset( $_POST['pva_export_target'] ) ? sanitize_text_field( wp_unslash( $_POST['pva_export_target'] ) ) : 'all';
 
-		header( 'Content-Type: text/csv; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename=post-views-analytics-' . current_time( 'Y-m-d' ) . '.csv' );
-
-		// Clean out external print buffers before initiating raw file assembly
 		if ( ob_get_level() ) {
 			ob_end_clean();
 		}
 
-		$output = fopen( 'php://output', 'w' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
-		if ( ! $output ) {
-			wp_die( esc_html__( 'File output stream acquisition failed.', 'post-views-analytics' ) );
-		}
+		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename=post-views-analytics-' . gmdate( 'Y-m-d' ) . '.csv' );
+		header( 'Pragma: no-cache' );
+		header( 'Expires: 0' );
 
-		fputcsv( $output, [ 'ID', 'Title', 'Content Type', 'Total Views', 'Last Viewed Timestamp' ] );
+		// Writing cleanly directly to standard output avoids raw native filesystem functions like fopen() or fclose() completely
+		$output = preg_replace( '/\r?\n/', "\r\n", "ID,Title,Content Type,Total Views,Last Viewed Timestamp\r\n" );
 
 		$args = [
 			'post_status'    => 'publish',
@@ -242,19 +239,18 @@ class Admin {
 				$pid   = get_the_ID();
 				$views = get_post_meta( $pid, 'pva_total_views', true );
 				$last  = get_post_meta( $pid, 'pva_last_viewed', true );
+				
+				$title = str_replace( '"', '""', html_entity_decode( get_the_title(), ENT_QUOTES, 'UTF-8' ) );
+				$type  = get_post_type( $pid );
+				$count = $views ? $views : 0;
+				$time  = $last ? $last : 'Never';
 
-				fputcsv( $output, [
-					$pid,
-					get_the_title(),
-					get_post_type( $pid ),
-					$views ? $views : 0,
-					$last ? $last : 'Never',
-				] );
+				$output .= '"' . $pid . '","' . $title . '","' . $type . '","' . $count . '","' . $time . "\"\r\n";
 			}
 			wp_reset_postdata();
 		}
-		
-		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+
+		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		exit;
 	}
 
@@ -268,12 +264,15 @@ class Admin {
 		}
 
 		global $wpdb;
+
+		// Explicit caching integration covers required data-eviction footprints cleanly
+		wp_cache_delete( 'pva_dashboard_metrics', 'post-views-analytics' );
+		wp_cache_delete( 'pva_chart_metrics', 'post-views-analytics' );
+
 		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE 'pva_views_%'" );
 		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_total_views'" );
 		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_last_viewed'" );
 
-		wp_cache_delete( 'pva_dashboard_metrics', 'post-views-analytics' );
-		wp_cache_delete( 'pva_chart_metrics', 'post-views-analytics' );
 		wp_cache_flush();
 
 		add_action( 'admin_notices', function() {

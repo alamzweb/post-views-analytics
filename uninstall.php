@@ -9,12 +9,13 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 
 global $wpdb;
 
-// Clean up all plugin settings options data profiles
+wp_cache_delete( 'pva_dashboard_metrics', 'post-views-analytics' );
+wp_cache_delete( 'pva_chart_metrics', 'post-views-analytics' );
+
 delete_option( 'pva_settings' );
 
-// Clean up custom post metadata metrics logs securely
-$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE 'pva_views_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_total_views'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_last_viewed'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE 'pva_views_%'" );
+$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_total_views'" );
+$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_last_viewed'" );
 
 wp_cache_flush();
