@@ -55,11 +55,7 @@ class Admin {
 		}
 		
 		wp_enqueue_style( 'pva-admin-styles', PVA_PLUGIN_URL . 'assets/css/admin.css', [], PVA_VERSION );
-		
-		// 1. Enqueue the local bundled ChartJS library asset first
 		wp_enqueue_script( 'pva-chartjs', PVA_PLUGIN_URL . 'assets/js/chart.min.js', [], '3.9.1', true );
-		
-		// 2. Enqueue admin.js with an explicit dependency on pva-chartjs and jquery
 		wp_enqueue_script( 'pva-admin-js', PVA_PLUGIN_URL . 'assets/js/admin.js', [ 'jquery', 'pva-chartjs' ], PVA_VERSION, true );
 
 		$chart_data = Dashboard::get_aggregated_chart_metrics();
@@ -210,7 +206,12 @@ class Admin {
 		header( 'Content-Type: text/csv; charset=utf-8' );
 		header( 'Content-Disposition: attachment; filename=post-views-analytics-' . current_time( 'Y-m-d' ) . '.csv' );
 
-		$output = fopen( 'php://output', 'w' );
+		// Clean out external print buffers before initiating raw file assembly
+		if ( ob_get_level() ) {
+			ob_end_clean();
+		}
+
+		$output = fopen( 'php://output', 'w' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 		if ( ! $output ) {
 			wp_die( esc_html__( 'File output stream acquisition failed.', 'post-views-analytics' ) );
 		}
@@ -252,7 +253,8 @@ class Admin {
 			}
 			wp_reset_postdata();
 		}
-		fclose( $output );
+		
+		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		exit;
 	}
 
@@ -270,6 +272,8 @@ class Admin {
 		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_total_views'" );
 		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_last_viewed'" );
 
+		wp_cache_delete( 'pva_dashboard_metrics', 'post-views-analytics' );
+		wp_cache_delete( 'pva_chart_metrics', 'post-views-analytics' );
 		wp_cache_flush();
 
 		add_action( 'admin_notices', function() {

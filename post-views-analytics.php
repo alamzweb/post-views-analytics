@@ -23,20 +23,20 @@ define( 'PVA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PVA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'PVA_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
-// Safely require core architectural files
-require_pva_module( PVA_PLUGIN_DIR . 'includes/class-plugin.php' );
-require_pva_module( PVA_PLUGIN_DIR . 'includes/class-tracker.php' );
-require_pva_module( PVA_PLUGIN_DIR . 'includes/class-settings.php' );
-require_pva_module( PVA_PLUGIN_DIR . 'includes/class-admin.php' );
-require_pva_module( PVA_PLUGIN_DIR . 'includes/class-dashboard.php' );
-require_pva_module( PVA_PLUGIN_DIR . 'includes/class-shortcode.php' );
-require_pva_module( PVA_PLUGIN_DIR . 'includes/class-gutenberg-block.php' );
-
-function require_pva_module( $path ) {
+function pva_require_module( $path ) {
 	if ( file_exists( $path ) ) {
 		require_once $path;
 	}
 }
+
+// Safely require core architectural files using strict prefix conventions
+pva_require_module( PVA_PLUGIN_DIR . 'includes/class-plugin.php' );
+pva_require_module( PVA_PLUGIN_DIR . 'includes/class-tracker.php' );
+pva_require_module( PVA_PLUGIN_DIR . 'includes/class-settings.php' );
+pva_require_module( PVA_PLUGIN_DIR . 'includes/class-admin.php' );
+pva_require_module( PVA_PLUGIN_DIR . 'includes/class-dashboard.php' );
+pva_require_module( PVA_PLUGIN_DIR . 'includes/class-shortcode.php' );
+pva_require_module( PVA_PLUGIN_DIR . 'includes/class-gutenberg-block.php' );
 
 function pva_run_analytics_plugin() {
 	$plugin = new \PostViewsAnalytics\Plugin();
