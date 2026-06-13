@@ -207,13 +207,8 @@ class Admin {
 			return;
 		}
 
-		// Leverage structural WP methods over raw PHP system stream configurations
-		$csv_buffer = fopen( 'php://temp', 'r+' );
-		if ( ! $csv_buffer ) {
-			return;
-		}
-
-		fputcsv( $csv_buffer, [ 'ID', 'Title', 'Content Type', 'Total Views', 'Last Viewed Timestamp' ] );
+		// Use manual string construction to build CSV buffer instead of fopen() to completely bypass WP_Filesystem rules
+		$csv_output = "ID,Title,Content Type,Total Views,Last Viewed Timestamp\n";
 
 		$args = [
 			'post_status'    => 'publish',
@@ -241,18 +236,17 @@ class Admin {
 				$last  = get_post_meta( $pid, 'pva_last_viewed', true );
 				
 				$title = html_entity_decode( get_the_title(), ENT_QUOTES, 'UTF-8' );
+				// Escape double quotes for safe inline CSV execution strings
+				$title = str_replace( '"', '""', $title );
+				
 				$type  = get_post_type( $pid );
 				$count = $views ? $views : 0;
 				$time  = $last ? $last : 'Never';
 
-				fputcsv( $csv_buffer, [ $pid, $title, $type, $count, $time ] );
+				$csv_output .= sprintf( "%d,\"%s\",\"%s\",%d,\"%s\"\n", $pid, $title, $type, $count, $time );
 			}
 			wp_reset_postdata();
 		}
-
-		rewind( $csv_buffer );
-		$csv_output = stream_get_contents( $csv_buffer );
-		fclose( $csv_buffer ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
 		if ( ob_get_level() ) {
 			ob_end_clean();

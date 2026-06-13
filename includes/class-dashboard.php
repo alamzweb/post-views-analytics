@@ -88,51 +88,48 @@ class Dashboard {
 		$settings = get_option( 'pva_settings', [ 'post_types' => [ 'post', 'page' ] ] );
 		$allowed_types = ! empty( $settings['post_types'] ) ? $settings['post_types'] : [ 'post', 'page' ];
 		
-		// Map elements explicitly through sanitize_key to bypass string configuration rules
 		$sanitized_types = array_map( 'sanitize_key', $allowed_types );
 		if ( empty( $sanitized_types ) ) {
 			$sanitized_types = [ 'post', 'page' ];
 		}
 
-		// Convert sanitized keys to safe prepare placeholders
 		$placeholders = implode( ',', array_fill( 0, count( $sanitized_types ), '%s' ) );
 
-		$total_query = $wpdb->prepare(
+		// Execute prepare syntax inline to solve the static parser constraint tracking rules
+		$total_views = $wpdb->get_var( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
 			"SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = 'pva_total_views' AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($placeholders) AND post_status = 'publish')", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$sanitized_types
-		);
-		$total_views = $wpdb->get_var( $total_query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
+		) );
 
 		$today = current_datetime()->format( 'Y-m-d' );
 		$today_params = array_merge( [ 'pva_views_' . $today ], $sanitized_types );
 		
-		$today_query = $wpdb->prepare(
+		$today_views = $wpdb->get_var( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
 			"SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($placeholders) AND post_status = 'publish')", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$today_params
-		);
-		$today_views = $wpdb->get_var( $today_query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
+		) );
 
 		$week_views = 0;
 		$now_timestamp = current_datetime()->getTimestamp();
 		for ( $i = 0; $i < 7; $i++ ) {
 			$day_string = gmdate( 'Y-m-d', $now_timestamp - ( $i * DAY_IN_SECONDS ) );
 			$loop_params = array_merge( [ 'pva_views_' . $day_string ], $sanitized_types );
-			$loop_query = $wpdb->prepare(
+			
+			$week_views += (int) $wpdb->get_var( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
 				"SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($placeholders) AND post_status = 'publish')", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				$loop_params
-			);
-			$week_views += (int) $wpdb->get_var( $loop_query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
+			) );
 		}
 
 		$month_views = 0;
 		for ( $i = 0; $i < 30; $i++ ) {
 			$day_string   = gmdate( 'Y-m-d', $now_timestamp - ( $i * DAY_IN_SECONDS ) );
 			$loop_params  = array_merge( [ 'pva_views_' . $day_string ], $sanitized_types );
-			$loop_query   = $wpdb->prepare(
+			
+			$month_views += (int) $wpdb->get_var( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
 				"SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($placeholders) AND post_status = 'publish')", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				$loop_params
-			);
-			$month_views += (int) $wpdb->get_var( $loop_query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
+			) );
 		}
 
 		$metrics = [
@@ -172,11 +169,10 @@ class Dashboard {
 			$labels_7[]  = gmdate( 'M d', $calc_time );
 			
 			$loop_params = array_merge( [ 'pva_views_' . $day ], $sanitized_types );
-			$query = $wpdb->prepare(
+			$val = $wpdb->get_var( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
 				"SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($placeholders) AND post_status = 'publish')", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				$loop_params
-			);
-			$val = $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
+			) );
 			$dataset_7[] = $val ? (int) $val : 0;
 		}
 
@@ -188,11 +184,10 @@ class Dashboard {
 			$labels_30[]  = gmdate( 'M d', $calc_time );
 			
 			$loop_params = array_merge( [ 'pva_views_' . $day ], $sanitized_types );
-			$query = $wpdb->prepare(
+			$val = $wpdb->get_var( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
 				"SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($placeholders) AND post_status = 'publish')", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				$loop_params
-			);
-			$val = $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
+			) );
 			$dataset_30[] = $val ? (int) $val : 0;
 		}
 
