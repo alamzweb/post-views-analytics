@@ -7,10 +7,11 @@
  * Author:            Saad
  * Author URI:        https://sitecroftdev.vercel.app/
  * Requires at least: 6.0
+ * Tested up to:      6.5
  * Requires PHP:      8.0
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       post-views-analytics
+ * Text Domain:       post-views-analytics-main
  * Domain Path:       /languages
  */
 
@@ -23,22 +24,22 @@ define( 'PVA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PVA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'PVA_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
-function pva_require_module( $path ) {
+function post_views_analytics_require_module( $path ) {
 	if ( file_exists( $path ) ) {
 		require_once $path;
 	}
 }
 
-pva_require_module( PVA_PLUGIN_DIR . 'includes/class-plugin.php' );
-pva_require_module( PVA_PLUGIN_DIR . 'includes/class-tracker.php' );
-pva_require_module( PVA_PLUGIN_DIR . 'includes/class-settings.php' );
-pva_require_module( PVA_PLUGIN_DIR . 'includes/class-admin.php' );
-pva_require_module( PVA_PLUGIN_DIR . 'includes/class-dashboard.php' );
-pva_require_module( PVA_PLUGIN_DIR . 'includes/class-shortcode.php' );
-pva_require_module( PVA_PLUGIN_DIR . 'includes/class-gutenberg-block.php' );
+post_views_analytics_require_module( PVA_PLUGIN_DIR . 'includes/class-plugin.php' );
+post_views_analytics_require_module( PVA_PLUGIN_DIR . 'includes/class-tracker.php' );
+post_views_analytics_require_module( PVA_PLUGIN_DIR . 'includes/class-settings.php' );
+post_views_analytics_require_module( PVA_PLUGIN_DIR . 'includes/class-admin.php' );
+post_views_analytics_require_module( PVA_PLUGIN_DIR . 'includes/class-dashboard.php' );
+post_views_analytics_require_module( PVA_PLUGIN_DIR . 'includes/class-shortcode.php' );
+post_views_analytics_require_module( PVA_PLUGIN_DIR . 'includes/class-gutenberg-block.php' );
 
-function pva_run_analytics_plugin() {
+function post_views_analytics_run_plugin() {
 	$plugin = new \PostViewsAnalytics\Plugin();
 	$plugin->run();
 }
-add_action( 'plugins_loaded', 'pva_run_analytics_plugin' );
+add_action( 'plugins_loaded', 'post_views_analytics_run_plugin' );
