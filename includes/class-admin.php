@@ -53,10 +53,14 @@ class Admin {
 		if ( strpos( $hook, 'post-views-analytics' ) === false && strpos( $hook, 'pva-settings' ) === false ) {
 			return;
 		}
+		
 		wp_enqueue_style( 'pva-admin-styles', PVA_PLUGIN_URL . 'assets/css/admin.css', [], PVA_VERSION );
 		
-		// ChartJS is now completely bundled inside local file space
-		wp_enqueue_script( 'pva-admin-js', PVA_PLUGIN_URL . 'assets/js/admin.js', [ 'jquery' ], PVA_VERSION, true );
+		// 1. Enqueue the local bundled ChartJS library asset first
+		wp_enqueue_script( 'pva-chartjs', PVA_PLUGIN_URL . 'assets/js/chart.min.js', [], '3.9.1', true );
+		
+		// 2. Enqueue admin.js with an explicit dependency on pva-chartjs and jquery
+		wp_enqueue_script( 'pva-admin-js', PVA_PLUGIN_URL . 'assets/js/admin.js', [ 'jquery', 'pva-chartjs' ], PVA_VERSION, true );
 
 		$chart_data = Dashboard::get_aggregated_chart_metrics();
 		wp_localize_script( 'pva-admin-js', 'pvaChartPayload', $chart_data );
