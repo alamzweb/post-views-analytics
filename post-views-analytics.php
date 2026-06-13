@@ -7,11 +7,11 @@
  * Author:            Saad
  * Author URI:        https://sitecroftdev.vercel.app/
  * Requires at least: 6.0
- * Tested up to:      6.5
+ * Tested up to:      7.0
  * Requires PHP:      8.0
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       post-views-analytics-main
+ * Text Domain:       post-views-analytics
  * Domain Path:       /languages
  */
 

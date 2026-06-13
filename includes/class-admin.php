@@ -21,8 +21,8 @@ class Admin {
 
 	public function create_admin_menu() {
 		add_menu_page(
-			__( 'Post Views Analytics', 'post-views-analytics-main' ),
-			__( 'Post Views Analytics', 'post-views-analytics-main' ),
+			__( 'Post Views Analytics', 'post-views-analytics' ),
+			__( 'Post Views Analytics', 'post-views-analytics' ),
 			'manage_options',
 			'post-views-analytics',
 			[ $this, 'render_dashboard' ],
@@ -32,8 +32,8 @@ class Admin {
 
 		add_submenu_page(
 			'post-views-analytics',
-			__( 'Dashboard', 'post-views-analytics-main' ),
-			__( 'Dashboard', 'post-views-analytics-main' ),
+			__( 'Dashboard', 'post-views-analytics' ),
+			__( 'Dashboard', 'post-views-analytics' ),
 			'manage_options',
 			'post-views-analytics',
 			[ $this, 'render_dashboard' ]
@@ -41,8 +41,8 @@ class Admin {
 
 		add_submenu_page(
 			'post-views-analytics',
-			__( 'Settings', 'post-views-analytics-main' ),
-			__( 'Settings', 'post-views-analytics-main' ),
+			__( 'Settings', 'post-views-analytics' ),
+			__( 'Settings', 'post-views-analytics' ),
 			'manage_options',
 			'pva-settings',
 			[ $this, 'render_settings' ]
@@ -72,8 +72,8 @@ class Admin {
 		?>
 		<div class="wrap pva-wrap">
 			<div class="pva-header">
-				<h1><?php esc_html_e( 'Analytics Settings', 'post-views-analytics-main' ); ?></h1>
-				<p class="description"><?php esc_html_e( 'Configure rules, visual display elements, parameters, and structural data points.', 'post-views-analytics-main' ); ?></p>
+				<h1><?php esc_html_e( 'Analytics Settings', 'post-views-analytics' ); ?></h1>
+				<p class="description"><?php esc_html_e( 'Configure rules, visual display elements, parameters, and structural data points.', 'post-views-analytics' ); ?></p>
 			</div>
 
 			<?php settings_errors(); ?>
@@ -82,13 +82,13 @@ class Admin {
 				<?php settings_fields( 'pva_settings_group' ); ?>
 				
 				<div class="pva-card">
-					<h2><?php esc_html_e( 'General Settings', 'post-views-analytics-main' ); ?></h2>
+					<h2><?php esc_html_e( 'General Settings', 'post-views-analytics' ); ?></h2>
 					<div class="pva-form-group">
 						<label class="pva-switch">
 							<input type="checkbox" name="pva_settings[enable_tracking]" value="1" <?php checked( 1, $options['enable_tracking'] ); ?>>
 							<span class="pva-slider"></span>
 						</label>
-						<span class="pva-label-text"><?php esc_html_e( 'Enable Tracking', 'post-views-analytics-main' ); ?></span>
+						<span class="pva-label-text"><?php esc_html_e( 'Enable Tracking', 'post-views-analytics' ); ?></span>
 					</div>
 
 					<div class="pva-form-group">
@@ -96,11 +96,11 @@ class Admin {
 							<input type="checkbox" name="pva_settings[enable_frontend]" value="1" <?php checked( 1, $options['enable_frontend'] ); ?>>
 							<span class="pva-slider"></span>
 						</label>
-						<span class="pva-label-text"><?php esc_html_e( 'Enable Global Frontend Display', 'post-views-analytics-main' ); ?></span>
+						<span class="pva-label-text"><?php esc_html_e( 'Enable Global Frontend Display', 'post-views-analytics' ); ?></span>
 					</div>
 
 					<div class="pva-form-group">
-						<label class="pva-main-label"><?php esc_html_e( 'Track Content Post Types', 'post-views-analytics-main' ); ?></label>
+						<label class="pva-main-label"><?php esc_html_e( 'Track Content Post Types', 'post-views-analytics' ); ?></label>
 						<div class="pva-checkbox-list">
 							<?php foreach ( $post_types as $type ) : ?>
 								<label>
@@ -113,78 +113,78 @@ class Admin {
 				</div>
 
 				<div class="pva-card">
-					<h2><?php esc_html_e( 'Counting Rules', 'post-views-analytics-main' ); ?></h2>
+					<h2><?php esc_html_e( 'Counting Rules', 'post-views-analytics' ); ?></h2>
 					<div class="pva-form-group">
-						<label><input type="checkbox" name="pva_settings[count_logged_in]" value="1" <?php checked( 1, $options['count_logged_in'] ); ?>> <?php esc_html_e( 'Count Logged-in Users', 'post-views-analytics-main' ); ?></label>
+						<label><input type="checkbox" name="pva_settings[count_logged_in]" value="1" <?php checked( 1, $options['count_logged_in'] ); ?>> <?php esc_html_e( 'Count Logged-in Users', 'post-views-analytics' ); ?></label>
 					</div>
 					<div class="pva-form-group">
-						<label><input type="checkbox" name="pva_settings[count_guests]" value="1" <?php checked( 1, $options['count_guests'] ); ?>> <?php esc_html_e( 'Count Guest Users', 'post-views-analytics-main' ); ?></label>
+						<label><input type="checkbox" name="pva_settings[count_guests]" value="1" <?php checked( 1, $options['count_guests'] ); ?>> <?php esc_html_e( 'Count Guest Users', 'post-views-analytics' ); ?></label>
 					</div>
 					<div class="pva-form-group">
-						<label><input type="checkbox" name="pva_settings[ignore_admin]" value="1" <?php checked( 1, $options['ignore_admin'] ); ?>> <?php esc_html_e( 'Ignore Administrators', 'post-views-analytics-main' ); ?></label>
+						<label><input type="checkbox" name="pva_settings[ignore_admin]" value="1" <?php checked( 1, $options['ignore_admin'] ); ?>> <?php esc_html_e( 'Ignore Administrators', 'post-views-analytics' ); ?></label>
 					</div>
 					<div class="pva-form-group">
-						<label><input type="checkbox" name="pva_settings[ignore_editor]" value="1" <?php checked( 1, $options['ignore_editor'] ); ?>> <?php esc_html_e( 'Ignore Editors', 'post-views-analytics-main' ); ?></label>
+						<label><input type="checkbox" name="pva_settings[ignore_editor]" value="1" <?php checked( 1, $options['ignore_editor'] ); ?>> <?php esc_html_e( 'Ignore Editors', 'post-views-analytics' ); ?></label>
 					</div>
 					<div class="pva-form-group">
-						<label><input type="checkbox" name="pva_settings[prevent_refresh]" value="1" <?php checked( 1, $options['prevent_refresh'] ); ?>> <?php esc_html_e( 'Prevent Rapid Refresh Counting (5 min cookie limit)', 'post-views-analytics-main' ); ?></label>
+						<label><input type="checkbox" name="pva_settings[prevent_refresh]" value="1" <?php checked( 1, $options['prevent_refresh'] ); ?>> <?php esc_html_e( 'Prevent Rapid Refresh Counting (5 min cookie limit)', 'post-views-analytics' ); ?></label>
 					</div>
 				</div>
 
 				<div class="pva-card">
-					<h2><?php esc_html_e( 'Display Settings', 'post-views-analytics-main' ); ?></h2>
+					<h2><?php esc_html_e( 'Display Settings', 'post-views-analytics' ); ?></h2>
 					<div class="pva-form-group">
-						<label class="pva-main-label"><?php esc_html_e( 'Display Format String', 'post-views-analytics-main' ); ?></label>
+						<label class="pva-main-label"><?php esc_html_e( 'Display Format String', 'post-views-analytics' ); ?></label>
 						<input type="text" class="regular-text" name="pva_settings[display_format]" value="<?php echo esc_attr( $options['display_format'] ); ?>">
-						<p class="description"><?php esc_html_e( 'Dynamic tags available: {icon}, {count}, {text}', 'post-views-analytics-main' ); ?></p>
+						<p class="description"><?php esc_html_e( 'Dynamic tags available: {icon}, {count}, {text}', 'post-views-analytics' ); ?></p>
 					</div>
 					<div class="pva-form-group">
-						<label><input type="checkbox" name="pva_settings[icon_on]" value="1" <?php checked( 1, $options['icon_on'] ); ?>> <?php esc_html_e( 'Icon On', 'post-views-analytics-main' ); ?></label>
+						<label><input type="checkbox" name="pva_settings[icon_on]" value="1" <?php checked( 1, $options['icon_on'] ); ?>> <?php esc_html_e( 'Icon On', 'post-views-analytics' ); ?></label>
 					</div>
 					<div class="pva-form-group">
-						<label class="pva-main-label"><?php esc_html_e( 'Text Label', 'post-views-analytics-main' ); ?></label>
+						<label class="pva-main-label"><?php esc_html_e( 'Text Label', 'post-views-analytics' ); ?></label>
 						<input type="text" class="regular-text" name="pva_settings[text_label]" value="<?php echo esc_attr( $options['text_label'] ); ?>">
 					</div>
 					<div class="pva-form-group">
-						<label><input type="checkbox" name="pva_settings[number_format]" value="1" <?php checked( 1, $options['number_format'] ); ?>> <?php esc_html_e( 'Apply Pretty Comma Formatting (e.g., 1,245)', 'post-views-analytics-main' ); ?></label>
+						<label><input type="checkbox" name="pva_settings[number_format]" value="1" <?php checked( 1, $options['number_format'] ); ?>> <?php esc_html_e( 'Apply Pretty Comma Formatting (e.g., 1,245)', 'post-views-analytics' ); ?></label>
 					</div>
 				</div>
 
 				<div class="pva-card">
-					<h2><?php esc_html_e( 'Analytics & Data Management', 'post-views-analytics-main' ); ?></h2>
+					<h2><?php esc_html_e( 'Analytics & Data Management', 'post-views-analytics' ); ?></h2>
 					<div class="pva-form-group">
-						<label class="pva-main-label"><?php esc_html_e( 'Data Retention Threshold (Days)', 'post-views-analytics-main' ); ?></label>
+						<label class="pva-main-label"><?php esc_html_e( 'Data Retention Threshold (Days)', 'post-views-analytics' ); ?></label>
 						<select name="pva_settings[retention_period]">
-							<option value="30" <?php selected( $options['retention_period'], '30' ); ?>><?php esc_html_e( 'Last 30 Days', 'post-views-analytics-main' ); ?></option>
-							<option value="90" <?php selected( $options['retention_period'], '90' ); ?>><?php esc_html_e( 'Last 90 Days', 'post-views-analytics-main' ); ?></option>
-							<option value="unlimited" <?php selected( $options['retention_period'], 'unlimited' ); ?>><?php esc_html_e( 'Keep All Logs', 'post-views-analytics-main' ); ?></option>
+							<option value="30" <?php selected( $options['retention_period'], '30' ); ?>><?php esc_html_e( 'Last 30 Days', 'post-views-analytics' ); ?></option>
+							<option value="90" <?php selected( $options['retention_period'], '90' ); ?>><?php esc_html_e( 'Last 90 Days', 'post-views-analytics' ); ?></option>
+							<option value="unlimited" <?php selected( $options['retention_period'], 'unlimited' ); ?>><?php esc_html_e( 'Keep All Logs', 'post-views-analytics' ); ?></option>
 						</select>
 					</div>
 				</div>
 
 				<div class="pva-actions">
-					<?php submit_button( __( 'Save Changes', 'post-views-analytics-main' ), 'primary', 'submit', false ); ?>
+					<?php submit_button( __( 'Save Changes', 'post-views-analytics' ), 'primary', 'submit', false ); ?>
 				</div>
 			</form>
 
 			<div class="pva-card pva-danger-zone">
-				<h2><?php esc_html_e( 'System Export & Reset Options', 'post-views-analytics-main' ); ?></h2>
-				<p class="description"><?php esc_html_e( 'Perform bulk system actions. These processes run instantaneously.', 'post-views-analytics-main' ); ?></p>
+				<h2><?php esc_html_e( 'System Export & Reset Options', 'post-views-analytics' ); ?></h2>
+				<p class="description"><?php esc_html_e( 'Perform bulk system actions. These processes run instantaneously.', 'post-views-analytics' ); ?></p>
 				
 				<div class="pva-action-row">
 					<form method="post" action="">
 						<?php wp_nonce_field( 'pva_export_nonce_action', 'pva_export_nonce' ); ?>
 						<select name="pva_export_target">
-							<option value="all"><?php esc_html_e( 'All Content Records', 'post-views-analytics-main' ); ?></option>
-							<option value="post"><?php esc_html_e( 'Posts Only', 'post-views-analytics-main' ); ?></option>
-							<option value="page"><?php esc_html_e( 'Pages Only', 'post-views-analytics-main' ); ?></option>
+							<option value="all"><?php esc_html_e( 'All Content Records', 'post-views-analytics' ); ?></option>
+							<option value="post"><?php esc_html_e( 'Posts Only', 'post-views-analytics' ); ?></option>
+							<option value="page"><?php esc_html_e( 'Pages Only', 'post-views-analytics' ); ?></option>
 						</select>
-						<input type="submit" name="pva_execute_export" class="button button-secondary" value="<?php esc_attr_e( 'Export Metrics to CSV', 'post-views-analytics-main' ); ?>">
+						<input type="submit" name="pva_execute_export" class="button button-secondary" value="<?php esc_attr_e( 'Export Metrics to CSV', 'post-views-analytics' ); ?>">
 					</form>
 
 					<form method="post" action="" onsubmit="return confirm('Are you completely sure you want to delete all views database records? This cannot be reversed.');">
 						<?php wp_nonce_field( 'pva_reset_nonce_action', 'pva_reset_nonce' ); ?>
-						<input type="submit" name="pva_execute_reset" class="button button-link-delete" value="<?php esc_attr_e( 'Reset Analytics Data', 'post-views-analytics-main' ); ?>">
+						<input type="submit" name="pva_execute_reset" class="button button-link-delete" value="<?php esc_attr_e( 'Reset Analytics Data', 'post-views-analytics' ); ?>">
 					</form>
 				</div>
 			</div>
@@ -198,21 +198,22 @@ class Admin {
 		}
 
 		if ( ! wp_verify_nonce( sanitize_key( $_POST['pva_export_nonce'] ), 'pva_export_nonce_action' ) || ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Security validation failure.', 'post-views-analytics-main' ) );
+			wp_die( esc_html__( 'Security validation failure.', 'post-views-analytics' ) );
 		}
 
 		$target_type = isset( $_POST['pva_export_target'] ) ? sanitize_text_field( wp_unslash( $_POST['pva_export_target'] ) ) : 'all';
 
-		if ( ob_get_level() ) {
-			ob_end_clean();
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
 		}
 
-		header( 'Content-Type: text/csv; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename=post-views-analytics-' . gmdate( 'Y-m-d' ) . '.csv' );
-		header( 'Pragma: no-cache' );
-		header( 'Expires: 0' );
+		// Leverage structural WP methods over raw PHP system stream configurations
+		$csv_buffer = fopen( 'php://temp', 'r+' );
+		if ( ! $csv_buffer ) {
+			return;
+		}
 
-		$output = "ID,Title,Content Type,Total Views,Last Viewed Timestamp\r\n";
+		fputcsv( $csv_buffer, [ 'ID', 'Title', 'Content Type', 'Total Views', 'Last Viewed Timestamp' ] );
 
 		$args = [
 			'post_status'    => 'publish',
@@ -239,17 +240,30 @@ class Admin {
 				$views = get_post_meta( $pid, 'pva_total_views', true );
 				$last  = get_post_meta( $pid, 'pva_last_viewed', true );
 				
-				$title = str_replace( '"', '""', html_entity_decode( get_the_title(), ENT_QUOTES, 'UTF-8' ) );
+				$title = html_entity_decode( get_the_title(), ENT_QUOTES, 'UTF-8' );
 				$type  = get_post_type( $pid );
 				$count = $views ? $views : 0;
 				$time  = $last ? $last : 'Never';
 
-				$output .= '"' . $pid . '","' . $title . '","' . $type . '","' . $count . '","' . $time . "\"\r\n";
+				fputcsv( $csv_buffer, [ $pid, $title, $type, $count, $time ] );
 			}
 			wp_reset_postdata();
 		}
 
-		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		rewind( $csv_buffer );
+		$csv_output = stream_get_contents( $csv_buffer );
+		fclose( $csv_buffer ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+
+		if ( ob_get_level() ) {
+			ob_end_clean();
+		}
+
+		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename=post-views-analytics-' . gmdate( 'Y-m-d' ) . '.csv' );
+		header( 'Pragma: no-cache' );
+		header( 'Expires: 0' );
+
+		echo $csv_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		exit;
 	}
 
@@ -259,7 +273,7 @@ class Admin {
 		}
 
 		if ( ! wp_verify_nonce( sanitize_key( $_POST['pva_reset_nonce'] ), 'pva_reset_nonce_action' ) || ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Security validation failure.', 'post-views-analytics-main' ) );
+			wp_die( esc_html__( 'Security validation failure.', 'post-views-analytics' ) );
 		}
 
 		global $wpdb;
@@ -267,14 +281,14 @@ class Admin {
 		wp_cache_delete( 'pva_dashboard_metrics', 'post-views-analytics' );
 		wp_cache_delete( 'pva_chart_metrics', 'post-views-analytics' );
 
-		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE 'pva_views_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_total_views'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_last_viewed'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE 'pva_views_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_total_views'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_last_viewed'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
 
 		wp_cache_flush();
 
 		add_action( 'admin_notices', function() {
-			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'All global metrics profiles reset successfully.', 'post-views-analytics-main' ) . '</p></div>';
+			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'All global metrics profiles reset successfully.', 'post-views-analytics' ) . '</p></div>';
 		});
 	}
 }
