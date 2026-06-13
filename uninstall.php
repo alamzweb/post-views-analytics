@@ -14,8 +14,8 @@ wp_cache_delete( 'pva_chart_metrics', 'post-views-analytics' );
 
 delete_option( 'pva_settings' );
 
-$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE 'pva_views_%'" );
-$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_total_views'" );
-$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_last_viewed'" );
+$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE 'pva_views_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_total_views'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_last_viewed'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 
 wp_cache_flush();

@@ -29,7 +29,6 @@ function pva_require_module( $path ) {
 	}
 }
 
-// Safely require core architectural files using strict prefix conventions
 pva_require_module( PVA_PLUGIN_DIR . 'includes/class-plugin.php' );
 pva_require_module( PVA_PLUGIN_DIR . 'includes/class-tracker.php' );
 pva_require_module( PVA_PLUGIN_DIR . 'includes/class-settings.php' );

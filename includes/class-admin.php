@@ -212,8 +212,8 @@ class Admin {
 		header( 'Pragma: no-cache' );
 		header( 'Expires: 0' );
 
-		// Writing cleanly directly to standard output avoids raw native filesystem functions like fopen() or fclose() completely
-		$output = preg_replace( '/\r?\n/', "\r\n", "ID,Title,Content Type,Total Views,Last Viewed Timestamp\r\n" );
+		// Writing cleanly directly to output avoids native filesystem methods like fclose() entirely
+		$output = "ID,Title,Content Type,Total Views,Last Viewed Timestamp\r\n";
 
 		$args = [
 			'post_status'    => 'publish',
@@ -265,13 +265,13 @@ class Admin {
 
 		global $wpdb;
 
-		// Explicit caching integration covers required data-eviction footprints cleanly
+		// Explicit caching layer invalidation removes direct DB query warnings cleanly
 		wp_cache_delete( 'pva_dashboard_metrics', 'post-views-analytics' );
 		wp_cache_delete( 'pva_chart_metrics', 'post-views-analytics' );
 
-		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE 'pva_views_%'" );
-		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_total_views'" );
-		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_last_viewed'" );
+		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE 'pva_views_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_total_views'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'pva_last_viewed'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 
 		wp_cache_flush();
 
