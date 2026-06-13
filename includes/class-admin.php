@@ -53,12 +53,11 @@ class Admin {
 		if ( strpos( $hook, 'post-views-analytics' ) === false && strpos( $hook, 'pva-settings' ) === false ) {
 			return;
 		}
-		// Core visual and behavior layers
 		wp_enqueue_style( 'pva-admin-styles', PVA_PLUGIN_URL . 'assets/css/admin.css', [], PVA_VERSION );
-		wp_enqueue_script( 'pva-chart-js', 'https://cdn.jsdelivr.net/npm/chart.js', [], PVA_VERSION, true );
-		wp_enqueue_script( 'pva-admin-js', PVA_PLUGIN_URL . 'assets/js/admin.js', [ 'jquery', 'pva-chart-js' ], PVA_VERSION, true );
+		
+		// ChartJS is now completely bundled inside local file space
+		wp_enqueue_script( 'pva-admin-js', PVA_PLUGIN_URL . 'assets/js/admin.js', [ 'jquery' ], PVA_VERSION, true );
 
-		// Metric compilation for execution in ChartJS contexts
 		$chart_data = Dashboard::get_aggregated_chart_metrics();
 		wp_localize_script( 'pva-admin-js', 'pvaChartPayload', $chart_data );
 	}
@@ -198,16 +197,20 @@ class Admin {
 			return;
 		}
 
-		if ( ! wp_verify_nonce( $_POST['pva_export_nonce'], 'pva_export_nonce_action' ) || ! current_user_can( 'manage_options' ) ) {
+		if ( ! wp_verify_nonce( sanitize_key( $_POST['pva_export_nonce'] ), 'pva_export_nonce_action' ) || ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Security validation failure.', 'post-views-analytics' ) );
 		}
 
-		$target_type = isset( $_POST['pva_export_target'] ) ? sanitize_text_field( $_POST['pva_export_target'] ) : 'all';
+		$target_type = isset( $_POST['pva_export_target'] ) ? sanitize_text_field( wp_unslash( $_POST['pva_export_target'] ) ) : 'all';
 
 		header( 'Content-Type: text/csv; charset=utf-8' );
 		header( 'Content-Disposition: attachment; filename=post-views-analytics-' . current_time( 'Y-m-d' ) . '.csv' );
 
 		$output = fopen( 'php://output', 'w' );
+		if ( ! $output ) {
+			wp_die( esc_html__( 'File output stream acquisition failed.', 'post-views-analytics' ) );
+		}
+
 		fputcsv( $output, [ 'ID', 'Title', 'Content Type', 'Total Views', 'Last Viewed Timestamp' ] );
 
 		$args = [
@@ -216,6 +219,7 @@ class Admin {
 			'meta_key'       => 'pva_total_views',
 			'orderby'        => 'meta_value_num',
 			'order'          => 'DESC',
+			'no_found_rows'  => true,
 		];
 
 		if ( 'all' === $target_type ) {
@@ -253,7 +257,7 @@ class Admin {
 			return;
 		}
 
-		if ( ! wp_verify_nonce( $_POST['pva_reset_nonce'], 'pva_reset_nonce_action' ) || ! current_user_can( 'manage_options' ) ) {
+		if ( ! wp_verify_nonce( sanitize_key( $_POST['pva_reset_nonce'] ), 'pva_reset_nonce_action' ) || ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Security validation failure.', 'post-views-analytics' ) );
 		}
 

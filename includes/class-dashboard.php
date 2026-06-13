@@ -15,7 +15,7 @@ class Dashboard {
 			<div class="pva-header-dashboard">
 				<div class="pva-header-title">
 					<h1><?php esc_html_e( 'Analytics Dashboard', 'post-views-analytics' ); ?></h1>
-					<p class="description"><?php esc_html_e( 'Real-time structural visualization metrics for internal organic system assets.', 'post-views-analytics' ); ?></p>
+					<p class="description"><?php esc_html_e( 'Real-time metrics for internal organic system assets.', 'post-views-analytics' ); ?></p>
 				</div>
 			</div>
 
@@ -80,28 +80,34 @@ class Dashboard {
 
 	private static function get_dashboard_cards_metrics() {
 		global $wpdb;
-		$settings = get_option( 'pva_settings', [] );
+		$settings = get_option( 'pva_settings', [ 'post_types' => [ 'post', 'page' ] ] );
 		$allowed_types = ! empty( $settings['post_types'] ) ? $settings['post_types'] : [ 'post', 'page' ];
 		
-		$post_types_placeholder = implode( "','", array_map( 'esc_sql', $allowed_types ) );
+		// Securely bind dynamic in expressions using prepared markers
+		$format = implode( ',', array_fill( 0, count( $allowed_types ), '%s' ) );
 
-		// Aggregations calculated utilizing secure optimal single pass execution paths
-		$total_views = $wpdb->get_var( "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = 'pva_total_views' AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ('$post_types_placeholder') AND post_status = 'publish')" );
+		$total_query = "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = 'pva_total_views' AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')";
+		$total_views = $wpdb->get_var( $wpdb->prepare( $total_query, $allowed_types ) );
 
 		$today = current_time( 'Y-m-d' );
-		$today_views = $wpdb->get_var( $wpdb->prepare( "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ('$post_types_placeholder') AND post_status = 'publish')", 'pva_views_' . $today ) );
+		$today_query = "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')";
+		$today_args = array_merge( [ 'pva_views_' . $today ], $allowed_types );
+		$today_views = $wpdb->get_var( $wpdb->prepare( $today_query, $today_args ) );
 
-		// Assemble historical tracking range metrics manually via date constructs safely
 		$week_views = 0;
 		for ( $i = 0; $i < 7; $i++ ) {
 			$day_string = date( 'Y-m-d', strtotime( "-$i days", current_time( 'timestamp' ) ) );
-			$week_views += (int) $wpdb->get_var( $wpdb->prepare( "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ('$post_types_placeholder') AND post_status = 'publish')", 'pva_views_' . $day_string ) );
+			$loop_query = "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')";
+			$loop_args  = array_merge( [ 'pva_views_' . $day_string ], $allowed_types );
+			$week_views += (int) $wpdb->get_var( $wpdb->prepare( $loop_query, $loop_args ) );
 		}
 
 		$month_views = 0;
 		for ( $i = 0; $i < 30; $i++ ) {
 			$day_string = date( 'Y-m-d', strtotime( "-$i days", current_time( 'timestamp' ) ) );
-			$month_views += (int) $wpdb->get_var( $wpdb->prepare( "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ('$post_types_placeholder') AND post_status = 'publish')", 'pva_views_' . $day_string ) );
+			$loop_query = "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')";
+			$loop_args  = array_merge( [ 'pva_views_' . $day_string ], $allowed_types );
+			$month_views += (int) $wpdb->get_var( $wpdb->prepare( $loop_query, $loop_args ) );
 		}
 
 		return [
@@ -114,16 +120,20 @@ class Dashboard {
 
 	public static function get_aggregated_chart_metrics() {
 		global $wpdb;
-		$settings = get_option( 'pva_settings', [] );
+		$settings = get_option( 'pva_settings', [ 'post_types' => [ 'post', 'page' ] ] );
 		$allowed_types = ! empty( $settings['post_types'] ) ? $settings['post_types'] : [ 'post', 'page' ];
-		$post_types_placeholder = implode( "','", array_map( 'esc_sql', $allowed_types ) );
+		$format = implode( ',', array_fill( 0, count( $allowed_types ), '%s' ) );
 
 		$labels_7  = [];
 		$dataset_7 = [];
 		for ( $i = 6; $i >= 0; $i-- ) {
 			$day = date( 'Y-m-d', strtotime( "-$i days", current_time( 'timestamp' ) ) );
 			$labels_7[]  = date( 'M d', strtotime( $day ) );
-			$val = $wpdb->get_var( $wpdb->prepare( "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ('$post_types_placeholder') AND post_status = 'publish')", 'pva_views_' . $day ) );
+			
+			$query = "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')";
+			$args  = array_merge( [ 'pva_views_' . $day ], $allowed_types );
+			$val   = $wpdb->get_var( $wpdb->prepare( $query, $args ) );
+			
 			$dataset_7[] = $val ? (int) $val : 0;
 		}
 
@@ -132,7 +142,11 @@ class Dashboard {
 		for ( $i = 29; $i >= 0; $i-- ) {
 			$day = date( 'Y-m-d', strtotime( "-$i days", current_time( 'timestamp' ) ) );
 			$labels_30[]  = date( 'M d', strtotime( $day ) );
-			$val = $wpdb->get_var( $wpdb->prepare( "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ('$post_types_placeholder') AND post_status = 'publish')", 'pva_views_' . $day ) );
+			
+			$query = "SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ($format) AND post_status = 'publish')";
+			$args  = array_merge( [ 'pva_views_' . $day ], $allowed_types );
+			$val   = $wpdb->get_var( $wpdb->prepare( $query, $args ) );
+			
 			$dataset_30[] = $val ? (int) $val : 0;
 		}
 
@@ -143,13 +157,14 @@ class Dashboard {
 	}
 
 	private static function get_filtered_posts_dataset( $strategy, $limit = 5 ) {
-		$settings = get_option( 'pva_settings', [] );
+		$settings = get_option( 'pva_settings', [ 'post_types' => [ 'post', 'page' ] ] );
 		$allowed_types = ! empty( $settings['post_types'] ) ? $settings['post_types'] : [ 'post', 'page' ];
 
 		$args = [
 			'post_type'      => $allowed_types,
 			'post_status'    => 'publish',
 			'posts_per_page' => $limit,
+			'no_found_rows'  => true,
 		];
 
 		if ( 'total' === $strategy ) {
