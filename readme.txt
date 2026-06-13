@@ -1,5 +1,5 @@
 === Post Views Analytics ===
-Contributors: saaddev
+Contributors: msalam
 Tags: post views, analytics, counter, traffic statistics, post counter
 Requires at least: 6.0
 Tested up to: 6.9
