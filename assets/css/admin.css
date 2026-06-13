@@ -1,0 +1,178 @@
+.pva-wrap {
+    margin: 20px 20px 0 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+.pva-header, .pva-header-dashboard {
+    margin-bottom: 24px;
+}
+.pva-header h1, .pva-header-dashboard h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1d2327;
+    margin: 0 0 4px 0;
+}
+.pva-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+.pva-card h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #1d2327;
+    border-bottom: 1px solid #f0f0f1;
+    padding-bottom: 12px;
+}
+.pva-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+.pva-metric-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+}
+.pva-card-icon {
+    font-size: 36px;
+    margin-right: 16px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f6fc;
+    border-radius: 8px;
+}
+.pva-card-icon span {
+    font-size: 28px;
+}
+.text-primary { color: #2271b1; }
+.text-success { color: #00a32a; background: #edfaef; }
+.text-warning { color: #dba617; background: #fdfaf0; }
+.text-info { color: #72aee6; background: #f0f6fc; }
+.pva-card-data h3 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1d2327;
+}
+.pva-card-data p {
+    margin: 4px 0 0 0;
+    color: #646970;
+    font-size: 13px;
+}
+.pva-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.pva-chart-btn {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+.pva-chart-btn.active {
+    background: #2271b1;
+    color: #fff;
+    border-color: #2271b1;
+}
+.pva-chart-wrapper {
+    position: relative;
+    height: 320px;
+    width: 100%;
+}
+.pva-tables-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(45%, 1fr));
+    gap: 24px;
+}
+.pva-data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.pva-data-table th, .pva-data-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f1;
+}
+.pva-data-table th {
+    font-weight: 600;
+    color: #646970;
+    background: #f8f9fa;
+}
+.pva-badge {
+    background: #e5e7eb;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.pva-form-group {
+    margin-bottom: 20px;
+}
+.pva-main-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+.pva-checkbox-list label {
+    display: block;
+    margin-bottom: 6px;
+}
+.pva-danger-zone {
+    border: 1px solid #d63638;
+}
+.pva-action-row {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    margin-top: 15px;
+}
+.pva-empty-state {
+    padding: 40px;
+    text-align: center;
+    color: #8c8f94;
+}
+/* Toggle Switch Design Styling */
+.pva-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+.pva-switch input { opacity: 0; width: 0; height: 0; }
+.pva-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .3s;
+    border-radius: 24px;
+}
+.pva-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px; width: 16px;
+    left: 4px; bottom: 4px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+input:checked + .pva-slider { background-color: #2271b1; }
+input:checked + .pva-slider:before { transform: translateX(20px); }
+.pva-label-text { vertical-align: middle; font-weight: 500; }

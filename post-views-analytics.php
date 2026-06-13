@@ -1,0 +1,48 @@
+<?php
+/**
+ * Plugin Name:       Post Views Analytics
+ * Plugin URI:        https://sitecroftdev.vercel.app/plugins/post-views-analytics
+ * Description:       Track post views, analyze content performance, and display detailed view statistics with a modern analytics dashboard.
+ * Version:           1.0.0
+ * Author:            Saad
+ * Author URI:        https://sitecroftdev.vercel.app/
+ * Requires at least: 6.0
+ * Requires PHP:      8.0
+ * License:           GPL v2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       post-views-analytics
+ * Domain Path:       /languages
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+define( 'PVA_VERSION', '1.0.0' );
+define( 'PVA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'PVA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'PVA_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+
+// Autoload internal dependencies
+require_size_checked_inc( PVA_PLUGIN_DIR . 'includes/class-plugin.php' );
+require_size_checked_inc( PVA_PLUGIN_DIR . 'includes/class-tracker.php' );
+require_size_checked_inc( PVA_PLUGIN_DIR . 'includes/class-settings.php' );
+require_size_checked_inc( PVA_PLUGIN_DIR . 'includes/class-admin.php' );
+require_size_checked_inc( PVA_PLUGIN_DIR . 'includes/class-dashboard.php' );
+require_size_checked_inc( PVA_PLUGIN_DIR . 'includes/class-shortcode.php' );
+require_size_checked_inc( PVA_PLUGIN_DIR . 'includes/class-gutenberg-block.php' );
+
+function require_size_checked_inc( $path ) {
+	if ( file_exists( $path ) ) {
+		require_once $path;
+	}
+}
+
+/**
+ * Initialization point for the plugin architecture.
+ */
+function pva_run_analytics_plugin() {
+	$plugin = new \PostViewsAnalytics\Plugin();
+	$plugin->run();
+}
+add_action( 'plugins_loaded', 'pva_run_analytics_plugin' );
